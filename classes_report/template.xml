@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <report
+            id="report_for_classes_report" 
+            model="reg.form"
+            name="classes_report.customer_report"
+            file="classes_report.customer_report"
+            report_type="qweb-html"
+            string="Classes Report"
+            menu="False"/>
+            
+
+         <record id="classes_report_wizard_form_view" model="ir.ui.view">
+            <field name="name">classes_report_wizard_form_view</field>
+            <field name="model">classes.reports</field>
+            <field name="arch" type="xml">
+                <form string="Report">
+                    <group name="group_top">
+                        <group name="group_left"> 
+    
+                            <field name="date_from"/>
+                            <field name="classes" options="{'no_create':True,'no_edit':True}"/>
+
+                        </group>
+
+                        <group name="group_right">
+
+                            <field name="date_to"/>
+                            <field name="types"/>
+                            <field name="branch" options="{'no_create':True,'no_edit':True}" attrs="{'invisible':[('types','!=','specfic')],'required':[('types','=','specfic')]}" widget="many2many_tags"/>
+
+                        </group>
+                        
+                    </group>
+
+                    <footer>
+                        <button name="%(report_for_classes_report)d" type="action" string="Print" class="oe_highlight"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="classes_report_wizard" model="ir.actions.act_window">
+            <field name="name">Classes Reports</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">classes.reports</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="classes_report_wizard_form_view"/>
+            <field name="target">new</field> 
+        </record>
+
+
+        <menuitem name="Classes Report" id="classes_wise_menu" parent="reg_form.reg_form_train" action="classes_report_wizard" sequence="5"/>       
+
+    </data>
+</openerp>
+
+
