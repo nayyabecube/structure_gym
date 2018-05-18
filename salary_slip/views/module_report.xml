@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+
+    <data>   
+
+        <template id="module_report">
+
+            <t t-call="report.html_container">
+                <t t-call="report.external_layout">
+                    <t t-foreach="docs" t-as="o">
+
+                        <div class="page">
+
+                            <style>
+
+                                .container {
+                                    width: 100%;
+                                    margin: 0px auto;
+                                }
+                                .center-container {
+                                    width: 1000px;
+                                    margin: 0px auto;
+                                }
+
+                                .clearfloat {
+                                    clear: both;
+                                    float: none;
+                                    width: 1px;
+                                    border: none;
+                                    display: block;
+                                }
+                                .page {
+                                    padding: 50px 0px;
+                                }
+                                .header,
+                                .footer {
+                                    display: none;
+                                }
+                                .header-col-01,
+                                .header-col-02 {
+                                    width: 50%;
+                                    float: left;
+                                }
+                                .header-col-01 {
+                                    padding: 0px 10px;
+                                    border-radius: 15px;
+                                    background-image: url(/tagm-salary-slip/static/src/img/green-bg.png);
+                                    background-repeat: repeat-x;
+                                    background-size: auto 100%;
+                                }
+                                .header-col-01 p {
+                                    line-height: 1;
+                                    padding: 0px;
+                                    margin: 0px;
+                                    font-size: 16px;
+                                    text-align: center;
+                                }
+                                .header-col-02 {
+                                    height: 50px;
+                                    background-image: url(/tagm-salary-slip/static/src/img/01.png);
+                                    background-repeat: no-repeat;
+                                    background-size: auto 100%;
+                                    background-position: top right;
+                                    margin-top: 40px;
+
+                                }
+                                .header-col-02 p {
+                                    text-align: right;
+                                    font-size: 25px;
+                                    color: #000;
+                                    line-height: 1;
+                                    margin: 0px;
+                                    padding: 0px 50px 0px 0px;
+                                }
+                                .employee-basics {
+                                    width: 100%;
+                                    margin: 25px 0px 0px 0px;
+                                }
+                                .employ-number, 
+                                .employ-name, 
+                                .employe-cnic, 
+                                .employe-month {
+                                    float: left;
+                                    margin: 0px 8px 0px 0px;
+                                }
+
+                                .employ-number {
+                                    width: 19%
+                                } 
+                                .employ-name {
+                                    width: 29%;
+                                }
+                                .employe-cnic {
+                                    width: 29%;
+                                }
+                                .employe-month {
+                                    width: 19%;
+                                }
+                                .basic-head {
+                                    width: 100%;
+                                    padding: 10px 0px;
+                                    border-radius: 10px 10px 0px 0px;
+                                    box-shadow: 0px 4px 5px #aaa;
+                                    background-image: url(/tagm-salary-slip/static/src/img/yello-bg.png);
+                                    background-repeat: repeat-x;
+                                    background-size: auto 100%;
+                                    background-color: #ccc;
+
+                                }
+                                .basic-head p {
+                                    text-align: center;
+                                    font-size: 18px;
+                                    margin: 0px;
+                                    line-height: 1;
+                                }
+                                .basic-entry {
+                                    border: 1px solid rgb(131, 153, 42);
+                                    margin: 5px 0px 0px 0px;
+                                    border-radius: 5px;
+                                    padding: 10px 20px;
+                                }
+                                .basic-entry p {
+                                    margin: 0px;
+                                    line-height: 1;
+                                    text-align: center;
+                                }
+                                .payment-info {
+                                    width: 100%;
+                                    margin: 25px 0px 0px 0px;
+                                }
+                                .payment,
+                                .deduction {
+                                    float: left;
+                                    margin: 0px 9px 0px 0px;
+                                }
+                                .payment {
+                                    width: 59%;
+                                }
+                                .deduction {
+                                    width: 39%;
+                                }
+                                .payment-info-detail {
+                                    border: 1px solid rgb(131, 153, 42);
+                                    margin: 6px 0px 0px 0px;
+                                    border-radius: 0px 0px 5px 5px;
+                                    padding: 10px 0px;
+
+                                }
+                                .padiaze {
+                                    padding: 0px 20px;   
+                                }
+                                .solid-entry,
+                                .liquid-entry {
+                                    display: inline-block;
+                                    width: 45%;
+                                }
+                                .solid-entry {
+                                    text-align: left;
+
+                                }
+                                .liquid-entry {
+                                    text-align: right;
+                                }
+                                .payment-info-detail p {
+                                    margin: 0px 0px 5px 0px;
+                                }
+                                .allowance-head {
+                                    border: 1px solid rgb(131, 153, 42);
+                                    margin: 50px 0px 0px 0px;
+                                    border-radius: 5px 5px 0px 0px;
+                                    line-height: 1;
+                                    text-align: center;
+                                    font-size: 20px;
+                                    padding: 10px 0px;
+                                    background-color: #ccc;
+                                }
+                                .slip-finalize {
+                                    width: 100%;
+                                    margin: 5px 0px 0px 0px;
+                                }
+                                .employe-comp-info,
+                                .employe-net-pay {
+                                    border: 1px solid rgb(131, 153, 42);
+                                    border-radius: 5px;
+                                    float: left;
+                                    margin: 0px 9px 0px 0px;
+                                    padding: 10px 20px;
+                                }
+                                .employe-comp-info {
+                                    width: 74%;
+                                }
+                                .employe-net-pay {
+                                    width: 24%;
+                                }
+                                .comp-col-01,
+                                .comp-col-02 {
+                                    width: 49%;
+                                    float: left;
+                                }
+                                .comp-col-01 {
+                                    margin: 0px 2% 0px 0px;
+                                }
+                                .report-footer {
+                                    margin: 15px 0px 0px;
+                                }
+                                .report-footer ul {
+                                    margin: 0px;
+                                }
+                                .report-footer ul li {
+                                    margin: 0px;
+                                    padding: 0px;
+                                    float: left;
+                                    width: 25%;
+                                }
+                                .comp-col-01 .liquid-entry,
+                                .comp-col-02 .liquid-entry {
+                                    text-align: left;
+                                    color: #000;
+                                }
+                                .comp-col-02 .solid-entry, 
+                                .comp-col-01 .solid-entry {
+                                    text-align: left;
+                                }
+                                .comp-col-02 .solid-entry {
+                                    width: 38%;
+                                }
+                                .comp-col-01 .solid-entry {
+                                    width: 30%;
+                                } 
+                                .employe-comp-info p span,
+                                .employe-net-pay p span {
+                                    color: rgb(131, 153, 42);
+                                }
+                                .tagm-footer {
+                                    background-image: url(/tagm-salary-slip/static/src/img/salary-sheet.png);
+                                    background-repeat: no-repeat;
+                                    background-position: center;
+                                    width: 100%;
+                                    height: 70px;
+                                }
+
+                            </style>
+
+                            <div class="container">
+
+                                <div class="center-container">
+      
+                                    <div class="report_header">
+
+                                        <div class="header-col-01">
+
+                                            <!-- <p><span style="display: inline-block;padding: 15px 10px 15px 0px; border-right: 2px solid #000;margin: 0px 7px 0px 0px;">COMPANY</span><span style="display: inline-block;">TARIQ ABDUL GHANI MAQBOOL &amp; CO</span></p> -->
+                                            <!-- <div class="image"> -->
+                                            <img src="/salary_slip/static/src/img/company.jpeg" alt="" />
+                                            <!-- </div> -->
+
+                                        </div>
+
+                                        <div class="header-col-02">
+
+                                            <p>Employee Payslip</p>
+
+                                        </div>
+                                        <br class="clearfloat" />
+
+                                    </div>
+
+                                    <div class="employee-basics">
+
+                                        <div class="employ-number">
+                                            <div class="basic-head">
+                                                <p>Employee #</p>
+                                            </div>
+                                            <div class="basic-entry">
+                                                <p t-esc="o.employee_id.id"></p>
+                                            </div>
+                                        </div>
+
+                                        <div class="employ-name">
+                                            <div class="basic-head">
+                                                <p>Employee Name</p>
+                                            </div>
+                                            <div class="basic-entry">
+                                                <p t-esc="o.employee_id.name"></p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="employe-cnic">
+                                            <div class="basic-head">
+                                                <p>CNIC</p>
+                                            </div>
+                                            <div class="basic-entry">
+                                                <p t-esc="o.employee_id.cnic"></p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="employe-month">
+                                            <div class="basic-head">
+                                                <p>Month</p>
+                                            </div>
+                                            <div class="basic-entry">
+                                                <p t-esc="time.strftime('%B %Y',time.strptime(o.date_from,'%Y-%m-%d'))"></p>
+                                            </div>
+                                        </div>
+                                        <br class="clearfloat" />
+
+                                    </div>
+
+                                    <div class="payment-info">
+
+                                        <div class="payment">
+
+                                            <div class="basic-head">
+
+                                                <p>Payments</p>
+
+                                            </div>
+
+                                            <div class="payment-info-detail">
+
+                                                <div class="padiaze">
+                                                    <t t-foreach="basic" t-as="line">
+
+                                                        <p>
+                                                            <span class="solid-entry" t-esc="line.name" ></span>
+                                                            <span class="liquid-entry" t-esc="'{:0,}'.format(int(float(line.total)))"></span>
+                                                        </p>
+
+                                                    </t>
+
+                                                </div>
+
+                                                <h2 class="allowance-head">Allowances</h2>
+
+                                                <div class="padiaze" style="margin: 10px 0px 0px; min-height: 169px;">
+
+                                                    <t t-foreach="allow" t-as="data">
+                                                        <p><span class="solid-entry" t-esc="data.name"></span>
+                                                            <span class="liquid-entry" t-esc="'{:0,}'.format(int(float(data.total)))"></span>
+                                                        </p>
+                                                    </t>
+                                                    
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                        <div class="deduction">
+
+                                            <div class="basic-head">
+
+                                                <p>Deduction</p>
+
+                                            </div>
+
+                                            <div class="payment-info-detail">
+
+                                                <div class="padiaze">
+                                                    
+                                                    <t t-foreach="deduct" t-as="rec">
+                                                        <p><span class="solid-entry" t-esc="rec.name"></span>
+                                                            <span class="liquid-entry" t-esc="'{:0,}'.format(int(float(rec.total)))"></span>
+                                                        </p>
+                                                    </t>
+                                                   
+                                                </div>
+
+                                            </div>
+
+                                            <!-- <div style="margin: 5px 0px 0px 0px">
+
+                                                <div class="basic-head">
+
+                                                    <p>Advances To Employees</p>
+
+                                                </div>
+
+                                                <div class="payment-info-detail">
+
+                                                    <div class="padiaze">
+
+                                                        <p><span class="solid-entry">Advance for the Month:</span>
+                                                            <span class="liquid-entry" t-esc="'{:0,}'.format(int(float(o.advance_for_month())))"></span>
+                                                        </p>
+
+                                                        <p><span class="solid-entry">Accumulated Loan</span>
+                                                            <span class="liquid-entry" t-esc="'{:0,}'.format(int(float(o.open_balance_setter())))"></span>
+                                                        </p>
+
+                                                        <p><span class="solid-entry" style="width: 60%;">Settlement during the Month</span>
+                                                            <span class="liquid-entry" style="width: 40%" t-esc="'{:0,}'.format(int(float(o.settlement_month_setter())))"></span>
+                                                        </p>
+
+                                                        <p><span class="solid-entry">Total Loan Paid</span>
+                                                            <span class="liquid-entry" t-esc="'{:0,}'.format(int(float(o.total_loan_paid())))"></span>
+                                                        </p>
+
+                                                        <p><span class="solid-entry">Loan Closing Balance</span>
+                                                            <span class="liquid-entry" t-esc="'{:0,}'.format(int(float(o.closing_balance_setter())))"></span>
+                                                        </p>
+                                                    </div>
+
+                                                </div>
+                                            </div> -->
+
+                                        </div>
+                                        <br class="clearfloat" />
+
+                                    </div>
+
+                                    <div class="slip-finalize">
+
+                                        <div class="employe-comp-info">
+                                            
+                                            <div class="comp-col-01">
+
+                                                <!-- <p><span class="solid-entry">Employee Status:</span><span class="liquid-entry" t-esc="o.employee_id.employee_status"></span></p> -->
+                                                <p><span class="solid-entry">Department:</span>
+                                                    <span class="liquid-entry" t-esc="o.employee_id.department_id.name"></span>
+                                                    </p>
+                                                <p><span class="solid-entry">Cell No.</span>
+                                                    <span class="liquid-entry" t-esc="o.employee_id.work_phone"></span>
+                                                    </p>
+                                                <p><span class="solid-entry">Designation:</span>
+                                                    <span class="liquid-entry" t-esc="o.employee_id.job_id.name"></span>
+                                                    </p>
+
+                                            </div>
+                                            
+                                            <div class="comp-col-02">
+                                            
+
+                                             <!--    <p><span class="solid-entry">Payment Method:</span>
+                                                    <span class="liquid-entry"></span>
+                                                    </p> -->
+                                                <p><span class="solid-entry">Bank Name:</span>
+                                                    <span class="liquid-entry" t-esc="o.employee_id.bank.name"></span>
+                                                    </p>
+                                                <p><span class="solid-entry">Bank Account No.</span>
+                                                    <span class="liquid-entry" t-esc="o.employee_id.bank_account_id"></span>
+                                                    </p>
+
+                                            </div>
+
+                                        </div>
+
+                                        <div class="employe-net-pay" style="padding: 36px 20px;">
+
+                                            <t t-foreach="net" t-as="i">
+
+                                                <p><span class="solid-entry" style="font-weight: bold; font-size: 20px;">Net</span>
+
+                                                    <span class="liquid-entry" t-esc="'{:0,}'.format(int(float(i.total)))" style="font-weight: bold; font-size: 20px;"></span>
+                                                </p>
+
+                                            </t>
+
+                                        </div>
+                                        <br class="clearfloat" />
+
+                                    </div>
+<!-- 
+                                    <div class="report-footer">
+
+                                        <ul>
+
+                                            <li>Phone: 042-35759501-3</li> 
+                                            <li>Fax: 042-35759504</li>
+                                            <li>Email: Info@tagm.com.pk</li>
+                                            <li>Website: http://www.tagm.co</li>
+
+                                        </ul>
+                                        <br class="clearfloat" />
+
+                                    </div>
+
+                                    <div class="tagm-footer">
+                                    </div> -->
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </t>
+
+                </t>
+            </t>
+
+        </template>
+
+    </data>
+
+</openerp>

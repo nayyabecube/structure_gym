@@ -1,0 +1,85 @@
+<?xml version="1.0"?> 
+<odoo>
+
+
+    
+
+    
+    <record id="deduction_form_view" model="ir.ui.view"> 
+        <field name="name">deduction_form_view</field> 
+        <field name="model">ecube.deduction</field>
+        <field name="type">form</field> 
+        <field name="arch" type="xml">
+
+            <form string="Deduction">
+
+                <header>
+
+                </header>
+
+                <sheet>
+
+                    <group name="group_top">
+                        
+                        <group name="group_left">
+                            <field name="employee_id" />
+                            <field name="date" />
+                        </group>
+
+                        <group name="group_right">
+                            <field name="amount" />
+                            <field name="type_id" />
+                        </group>
+
+                    </group>
+
+                    <group name="group_bottom">
+                        <field name="description" />
+                    </group>
+
+                </sheet>
+            
+            </form>
+
+        </field>
+    </record>
+
+
+    <record id="deduction_tree_view" model="ir.ui.view">
+        <field name="name">deduction_tree_view</field>
+        <field name="model">ecube.deduction</field>
+        <field name="type">tree</field>
+        <field name="arch" type="xml">
+            <tree string="Deduction">
+                <field name="employee_id"/>
+                <field name="date"/>
+                <field name="amount"/>
+                <field name="type_id"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <!--ACTIONS-->
+
+
+
+    <record model="ir.actions.act_window" id="deduction_action">
+        <field name="name">Deduction</field> 
+        <field name="res_model">ecube.deduction</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+
+    <!--MENUS-->
+
+    <menuitem id="ecube_deduction_others" name="Deduction" parent="hr_payroll.menu_hr_payroll_root" sequence="51" />
+
+
+
+    <menuitem id="deduction_menu_item" name="Deduction" action="deduction_action" parent="ecube_deduction_others" sequence="2" />
+
+
+</odoo> 

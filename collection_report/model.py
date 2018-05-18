@@ -51,11 +51,9 @@ class SampleDevelopmentReport(models.AbstractModel):
 
         if b_types == "all":
             branches = []
-            rec = self.env['res.users'].search([])
+            rec = self.env['branch'].search([])
             for x in rec:
-                if x.branch:
-                    if x.branch not in branches:
-                        branches.append(x.branch)
+                branches.append(x)
 
         if b_types == "specfic":
             branches = []
@@ -66,14 +64,10 @@ class SampleDevelopmentReport(models.AbstractModel):
         records = []
         def get_record(attr):
             del records[:]
-            rec = self.env['customer.payment.bcube'].search([('branch','=',attr),('journal_id','=',record_wizard.journal_id.id),('date','>=',record_wizard.date_from),('date','<=',record_wizard.date_to)])
-            print rec
-            print "nnnnnnnnnnnnnnnnnnnnnnnnn"
+            rec = self.env['customer.payment.bcube'].search([('branch','=',attr),('journal_id','=',record_wizard.journal_id.id),('date','>=',record_wizard.date_from),('date','<=',record_wizard.date_to),('receipts','=',True)])
             for x in rec:
                 records.append(x)
-            print records
-            print "nnnnnnnnnnnnnnnnn"
-            print "nnnnnnnnnnnnnnnnn"
+           
 
 
         docargs = {

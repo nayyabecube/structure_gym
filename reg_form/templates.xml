@@ -24,12 +24,12 @@
                                 <!-- <button name="createBioUsers" type="object" string="Bio User"/> -->
                                 <!-- <button name="payment_due_function" type="object" string="SMS"/> -->
 
-<!--                                 <button name="Attendencae_name" type="object" string="Member No"/> -->
+                                <!-- <button name="Attendencae_name" type="object" string="Member No"/> -->
                                 <!-- <button name="monthly_invoice" type="object" string="March invoice function"/> -->
 
                                 <!-- <button name="deleteBioUsers" type="object" string="Delete Bio User"/> -->
 
-                                <button name="premium_id_memship" type="object" string="Member No"/>
+                                <!-- <button name="premium_id_memship" type="object" string="Member No"/> -->
 
                                 <button name="create_member" type="object" string="Create Member" class="oe_highlight" attrs="{'invisible':[('result','=',False)]}"/>
 
@@ -94,6 +94,7 @@
                                         <field name="curent_date" invisible="1"/>
                                         <!-- <field name="req_date" invisible="1"/> -->
                                         <field name="new_join" invisible="1"/>
+                                        <field name="nonactive_id" readonly="1"/>
                                         <field name="gymclasses"/>
                                         <field name="premium"/>
                                         <field name="diet_plan"/>
@@ -461,7 +462,7 @@
                         <filter name="unpaid" string="Not Paid" domain="[('state','=','open')]"/>
                         <filter name="late" string="Overdue" domain="['&amp;', ('date_due', '&lt;', time.strftime('%%Y-%%m-%%d')), ('state', '=', 'open')]" help="Overdue invoices, maturity date passed"/>
                         <filter name="today" string="Today"  domain="[('date', '&gt;=', datetime.datetime.now().strftime('%Y-%m-%d 00:00:00')),('date', '&lt;=',datetime.datetime.now().strftime('%Y-%m-%d 23:23:59'))]" />
-                        <filter name="previous" string="Previous"  domain="[('date_invoice','=', ((context_today()-datetime.timedelta(days=3)).strftime('%Y-%m-%d')))]" />
+                        <filter name="today_invoice" string="Today Invoice"  domain="[('date_invoice','=', ((context_today()-datetime.timedelta(days=3)).strftime('%Y-%m-%d')))]" />
                         <separator/>
                         <field name="partner_id" operator="child_of"/>
                         <field name="user_id" string="Salesperson"/>
@@ -870,10 +871,10 @@
                             <button name="booked" type="object" string="Booked" class="oe_highlight" attrs="{'invisible':[('stages','not in','draft')]}"/>
 
                             <button name="cancel" type="object" string="Cancel" class="oe_highlight" attrs="{'invisible':[('stages','not in','booked')]}"/>
-<!-- 
-                            <button name="avail" type="object" string="Availed" class="oe_highlight" attrs="{'invisible':[('stages','not in','booked')]}"/> -->
 
-                            <button name="immediate_payment" type="object" string="Immediate Payment" class="oe_highlight" attrs="{'invisible':[('stages','not in','booked')]}" />
+                            <button name="avail" type="object" string="Availed" class="oe_highlight" attrs="{'invisible':[('status','=',False)]}"/>
+
+                            <button name="immediate_payment" type="object" string="Immediate Payment" class="oe_highlight" attrs="{'invisible':[('check','=',False)]}" />
 
 
                             <field name="stages" widget="statusbar" statusbar_visible="draft,booked,avail,cancel"/>
@@ -885,6 +886,7 @@
                                     <field name="name" attrs="{'invisible':[('types','=','member')],'readonly':[('stages','in',['booked','avail'])]}"/>
                                     <field name="mem_name" attrs="{'invisible':[('types','!=','member')]}"/>
                                     <field name="walkin_name" attrs="{'invisible':[('types','!=','walkin')],'readonly':[('stages','in',['booked','avail'])]}" domain="[('walkin','=',True)]"/>
+                                    <field name="ref_mem" attrs="{'invisible':[('types','!=','ref')],'readonly':[('stages','in',['booked','avail'])]}"/>
                                     <field name="types" attrs="{'readonly':[('stages','in',['booked','avail'])]}"/>
                                     <field name="member_no" attrs="{'invisible':[('types','!=','member')],'readonly':[('stages','in',['booked','avail'])]}" domain="[('stages','=','member')]"/>
                                     <field name="mamsus_name" domain="[('massus','=',True)]" attrs="{'readonly':[('stages','in',['booked','avail'])]}"/>
@@ -892,11 +894,13 @@
 
                                 <group>
                                     <field name="branch"/>
+                                    <field name="context_mem" invisible="1"/>
                                     <field name="date" attrs="{'readonly':[('stages','in',['booked','avail'])]}"/>
                                     <field name="s_time" attrs="{'readonly':[('stages','in',['booked','avail'])]}"/>
                                     <field name="e_time" attrs="{'readonly':[('stages','in',['booked','avail'])]}"/>
                                     <field name="contact" attrs="{'readonly':[('stages','in',['booked','avail'])]}"/>
-                                    <!-- <field name="book_status"/> -->
+                                    <field name="status" invisible="1"/>
+                                    <field name="check" invisible="1"/>
                                     <field name="invoice_link"/>
                                 </group>
                                 
@@ -1215,6 +1219,7 @@
                                 <field name="department" invisible="1"/>
                                 <field name="date"/>
                                 <field name="time"/>
+                                <field name="premium"/>
                             </group>
                         </group>
                     </sheet>
@@ -2318,6 +2323,7 @@
                                     <field name="waking_ref_mem"  attrs="{'readonly':[('stages','!=','draft')]}"/>
                                     <field name="show_mem" invisible="1"/>
                                     <field name="subtotal" invisible="1"/>
+                                    <field name="journal_id" domain="[('branch', '=',branch)]"/>
                                 </group>
                             </group>
 
@@ -2328,6 +2334,7 @@
                                     <field name="qty"/>
                                     <field name="price"/>
                                     <field name="subtotal" sum="total"/>
+                                    <field name="move_link" readonly="1"/>
 
                                 </tree>
                             </field>
@@ -2570,6 +2577,7 @@
                     <form string="Confirmation">
                             <h2>Are You Sure To Send This Member To Non Member</h2>
                             <field name="reg_link" invisible="1"/>
+                            <field name="date"/>
                         <footer>
                             <button name="confirm" type="object" string="Confirm" class="oe_highlight"/>
                         </footer>
@@ -3318,7 +3326,7 @@
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
             <field name="domain">[('invoice_due', '=', False)]</field>
-            <field name="context">{'readonly_by_pass': True,'search_default_today':1}</field>
+            <field name="context">{'readonly_by_pass': True,'search_default_today_invoice':1}</field>
 
             <field name="view_ids" eval="[(5, 0, 0),
             (0, 0, {'view_mode': 'tree', 'view_id': ref('invoice_form_daily_tree')}),
@@ -3326,6 +3334,28 @@
         </record>
 
         <menuitem name="Today Invoice" id="report_today" parent="reg_form_invoice" action="action_daily" sequence="2"/>
+
+
+         <record id="nonactive_track_form" model="ir.ui.view">
+            <field name="name">nonactive_track_form</field>
+            <field name="model">nonactive.track</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="NonActive" >
+
+                    <field name="name" invisible="1"/>
+
+                    <field name="nonactive_link" nolabel='1'>
+                        <tree>
+
+                            <field name="date"/>
+
+                        </tree>
+                    </field>
+
+                </form>
+            </field>
+        </record>
 
 
 

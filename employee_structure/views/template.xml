@@ -1,0 +1,114 @@
+<?xml version="1.0"?> 
+<odoo>
+    <data> 
+        <record id="employee_form_extension" model="ir.ui.view"> 
+            <field name="name">employee_form_extension</field> 
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//page[@name='personal_information']/group" position="after">
+                   <group>
+                        <group string="Contact Information">
+                            <field name="address_id" context="{'show_address': 1}" options="{&quot;always_reload&quot;: True, &quot;highlight_first_line&quot;: True}"/>
+                            <field name="mobile_phone"/>
+                            <field name="work_location"/>
+                            <field name="work_email" widget="email"/>
+                            <field name="work_phone"/>
+                            <field name="resigned" invisible="1"/>
+                        </group>
+                        <group string="Position">
+                            <field name="dor" />
+                            <field name="department_id"/>
+                            <field name="job_id" string="Designation"/>
+                            <field name="parent_id"/>
+                            <field name="coach_id"/>
+                        </group>
+                    </group>
+                    
+                </xpath>
+
+                <xpath expr="sheet/notebook" position="after">
+                    <field name="notes" placeholder="Other Information ..." colspan="4"/>
+                </xpath>
+
+                <xpath expr="//field[@name='category_ids']" position="after">
+                    
+                    <group name="group_top">
+                        <group name="group_right">
+                            <field name="confirmation_date" />
+                            <field name="incharge"  domain="[('id','!=',id)]"/>
+                        </group>
+
+                        <group name="group_left">
+                            <field name="employee_type" />
+                            <!-- <field name="card_no" /> -->
+                            <field name="doj" />
+                            <field name="doi" invisible="1"/>
+                        </group>
+
+                    </group>
+
+                </xpath>
+
+                <xpath expr="//field[@name='country_id']" position="before">
+                    <field name="fname" />
+                    <field name="religion" />
+                </xpath>
+
+                <xpath expr="//field[@name='identification_id']" position="replace">
+                    <field name="cnic" />
+                </xpath>
+
+                <xpath expr="//page[@name='public']" position="replace">
+                </xpath>
+
+                <xpath expr="//page[@name='personal_information']" position="inside">
+                    <group name="group_bottom">
+                        <group name="group_left" string="Reference">
+                            <field name="reff_name" />
+                            <field name="reff_city" />
+                            <field name="reff_cnic" />
+                            <field name="reff_relation" />
+                        </group>
+                    </group><!-- 
+
+                    <h2 class="o_horizontal_separator">Experience</h2>
+                    <field name="experience_tree">
+                        <tree editable="bottom">
+                            <field name="comany_name"/>
+                            <field name="city" />
+                            <field name="designation" />
+                            <field name="salary" />
+                            <field name="job_period" />
+                            <field name="dor" />
+                            <field name="resignation_reason" />
+                        </tree>
+                    </field>
+
+                    <h2 class="o_horizontal_separator">Leave Mangement</h2>
+                    <field name="leave_tree">
+                        <tree editable="bottom">
+                            <field name="type"/>
+                            <field name="allowed" />
+                            <field name="taken" />
+                            <field name="Left" />
+                        </tree>
+                    </field> -->
+                </xpath>
+
+                <xpath expr="//field[@name='bank_account_id']" position="replace">
+                    <field name="bank" domain="[('type','=','bank')]"/>
+                    <field name="bank_account_id" />
+                    <field name="ntn" />
+                    <field name="qualification" />
+                </xpath>
+
+                <xpath expr="//field[@name='address_home_id']" position="replace">
+                    <field name="contact_address" />
+                </xpath>
+
+            </field>
+        </record>
+    </data>
+</odoo>

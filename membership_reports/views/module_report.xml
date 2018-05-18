@@ -141,10 +141,24 @@
                             .footer {
                                 display: none !important;
                             }
+
+                            .image {
+                                width: 20%;
+                                margin: 0px auto;
+                            }
+
+                            .image img{
+                                width: 100%;
+                                display: block;
+                            }
                                         
                         </style>
 
                         <div class="report-container">
+
+                             <div class="image">
+                                <img src="/membership_reports/static/src/img/company.jpeg" alt="" />
+                            </div>
             
                             <div class="head">
                                 <h2>MEMBERSHIP REPORTS FOR <span t-esc="rep_type"></span></h2>

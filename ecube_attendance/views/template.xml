@@ -1,0 +1,76 @@
+<?xml version="1.0"?> 
+<odoo>
+    <data> 
+
+        <record id="ecube_attendance_view" model="ir.ui.view">
+            <field name="name">ecube_attendance_view</field>
+            <field name="model">ecube.attendance</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Over Time">
+                    
+                    <header>
+
+                        <button name="in_waiting" type="object" string="Draft" class= "oe_highlight" attrs="{'invisible': [('stages','in', ('draft'))]}" />
+
+                        <button name="in_validate" type="object" string="Validate" class= "oe_highlight" attrs="{'invisible': [('stages','in', ('approved'))]}" />
+
+                        <field name="stages" widget="statusbar" />
+
+                    </header>
+
+                    <sheet>
+                        <group name="group_top"> 
+                            <group name="group_left">
+                                <field name="date" />
+                            </group>
+                        </group>
+
+
+
+
+
+                        <field name="tree_link">
+                            <tree editable="bottom">
+                                <field name="employee"/>
+                                <field name="working_days"/>
+                                <field name="late_arrival"/>
+                                <field name="half_day"/>
+                                <field name="absent"/>
+                                <field name="total_work_days"/>
+                                <field name="remarks"/>
+                                <field name="approved"/>
+                            </tree>
+                        </field>
+
+                    </sheet>
+
+                </form>
+            </field>
+        </record>
+
+        <record id="ecube_attendance_tree_view" model="ir.ui.view">
+            <field name="name">ecube_attendance_tree_view</field>
+            <field name="model">ecube.attendance</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Overtime">
+                    <field name="date" />
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="ecube_attendance_action_view">
+            <field name="name">Hr Overtime</field>
+            <field name="res_model">ecube.attendance</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'readonly_by_pass': True}</field>
+        </record>
+
+    <menuitem id="ecube_attendance_payroll" name="Attendance Payroll" parent="hr_payroll.menu_hr_payroll_root" sequence="52" />
+
+        <menuitem id="attendance_ecube_sub" name="Attendance Payroll" action="ecube_attendance_action_view" parent="ecube_attendance_payroll" sequence="1" />
+
+    </data>
+</odoo>

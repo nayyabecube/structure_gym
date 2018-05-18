@@ -69,12 +69,11 @@ class SampleDevelopmentReport(models.AbstractModel):
             membership = []
             for x in record:
                 if x.stages == 'non_member':
-                    rec = self.env['mail.tracking.value'].search([('mail_message_id.res_id','=',x.id)])
-                    if rec:
-                        for z in rec:
-                            if z.field == 'stages' and z.new_value_char == 'Non Active Members':
-                                if str(z.mail_message_id.date[:10]) >= date_from and str(z.mail_message_id.date[:10]) <= date_to:
-                                    membership.append(x)
+                    if x.nonactive_id:
+                        for r in x.nonactive_id.nonactive_link[-1]:
+                            if r.date >= date_from and r.date <= date_to:
+                                membership.append(x)
+
 
 
         if types == 'new':
@@ -122,18 +121,20 @@ class SampleDevelopmentReport(models.AbstractModel):
             rep_type = "DAILY BASE MEMBERS"
             membership = []
             for x in record:
-                if x.stages == 'member':
-                    if x.daily == True:
-                        membership.append(x)
+                if x.invocie_date >= date_from and x.invocie_date <= date_to:
+                    if x.stages == 'member':
+                        if x.daily == True:
+                            membership.append(x)
 
 
         if types == 'temp':
             rep_type = "TEMPORARY BASE MEMBERS"
             membership = []
             for x in record:
-                if x.stages == 'member':
-                    if x.temp == True:
-                        membership.append(x)
+                if x.invocie_date >= date_from and x.invocie_date <= date_to:
+                    if x.stages == 'member':
+                        if x.temp == True:
+                            membership.append(x)
 
         
 

@@ -213,34 +213,14 @@
 
                                             </td>
 
-                                            <t t-if="type == 'draft'">
+                                       
 
-                                                <td style="text-align:left;padding-left:8px">
-                                                    <span t-esc="'{:0,}'.format(int(float(o.amount_total)))"></span>
-                                                </td>
-
-                                            </t>
-
-                                            <t t-if="type == 'open'">
-
-                                                <td style="text-align:left;padding-left:8px">
-                                                    <span t-esc="'{:0,}'.format(int(float(o.due_amt)))"></span>
-                                                </td>
-                                                <t t-set="total_amt" t-value="total_amt+o.due_amt"/>
-
-                                            </t>
-
-                                            <t t-if="type == 'paid'">
-
-                                                <td style="text-align:left;padding-left:8px">
-                                                    <span t-esc="'{:0,}'.format(int(float(o.due_amt)))"></span>
-                                                </td>
-                                                <t t-set="total_amt" t-value="total_amt+o.due_amt"/>
+                                            <td style="text-align:left;padding-left:8px">
+                                                <span t-esc="'{:0,}'.format(int(float(o.residual)))"></span>
+                                                <t t-set="total_amt" t-value="total_amt+o.residual"/>
+                                            </td>
 
 
-                                            </t>
-
-                                            <!-- <t t-set="total" t-value="total+o.package_charge"/> -->
 
                                         </tr>
 
@@ -248,33 +228,18 @@
 
                                         <tr>
                                             <td colspan="5" style="font-weight:bold">Total</td>
+
                                             <td style="text-align:left;padding-left:8px;font-weight:bold">
                                                 <span t-esc="'{:0,}'.format(int(float(total)))"></span>
                                             </td>
 
-                                            <t t-if="type == 'draft'">
+                                       
 
-                                                <td style="text-align:left;padding-left:8px;font-weight:bold">
-                                                    <span t-esc="'{:0,}'.format(int(float(total)))"></span>
-                                                </td>
+                                            <td style="text-align:left;padding-left:8px;font-weight:bold">
+                                                <span t-esc="'{:0,}'.format(int(float(total_amt)))"></span>
+                                            </td>
 
-                                            </t>
-
-                                            <t t-if="type == 'open'">
-
-                                                <td style="text-align:left;padding-left:8px;font-weight:bold">
-                                                    <span t-esc="'{:0,}'.format(int(float(total_amt)))"></span>
-                                                </td>
-
-                                            </t>
-
-                                            <t t-if="type == 'paid'">
-
-                                                <td style="text-align:left;padding-left:8px;font-weight:bold">
-                                                    <span t-esc="'{:0,}'.format(int(float(total_amt)))"></span>
-                                                </td>
-
-                                            </t>
+                                            
 
                                         </tr>
 

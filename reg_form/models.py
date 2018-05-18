@@ -133,6 +133,7 @@ class RegForm(models.Model):
 	time_slot_e = fields.Many2one('struct.slots',string="Time Slot")
 	payment_terms = fields.Many2one('account.payment.term', string="Payment Terms")
 	visitor_id = fields.Many2one('struct.visitor', string="Visitor Link")
+	nonactive_id = fields.Many2one('nonactive.track', string="NonActive Link")
 	due_amt = fields.Float(string="Due Amount",compute="compute_due_amt")
 
 	_sql_constraints = [
@@ -353,6 +354,8 @@ class RegForm(models.Model):
 		self.stages = 'member'
 		self.member_link = self.invoice_link.partner_id.id
 		self.invoice_link.membership_no = self.memship_no
+		if self.member_link:
+			self.member_link.membership_no=self.memship_no
 		member_name= self.name
 		if self.mob:
 			mob= self.mob
@@ -493,6 +496,7 @@ class RegForm(models.Model):
 				member_name=self.env['reg.form'].search([('memship_no','=',x.machine_id)])
 				if member_name:
 					x.employee_id=member_name.id
+					x.premium=member_name.premium
 
 
 	# @api.multi
@@ -590,6 +594,7 @@ class RegForm(models.Model):
 					'property_account_receivable_id': Receivable_list[0].id,
 					'property_account_payable_id': 	Payable_list[0].id,
 					'branch': 	self.branch.id,
+					'membership_no': self.memship_no,
 				})
 			self.member_link=member_entries.id
 		if self.payment_terms:
@@ -993,10 +998,13 @@ class RegAppoint(models.Model):
 	name = fields.Char(string='Name')
 	mem_name = fields.Many2one('res.partner',string='Name',readonly=True)
 	walkin_name = fields.Many2one('res.partner',string='Walkin Customer')
-	# book_status = fields.Many2one('book.status',string='Booking Status')
+	ref_mem = fields.Many2one('res.partner',string='Reference Customer')
+	context_mem = fields.Many2one('res.partner',string='Context')
+	status = fields.Boolean(string='Status',compute="get_avail")
+	check = fields.Boolean(string='Status',compute="get_imd")
 	contact = fields.Char(string='Contact')
 	types = fields.Selection(
-		[('member', 'Member'), ('walkin', 'Walkin'), ('ref', 'Reference'), ('comp', 'Complimentory')], string="Type",required=True)
+		[('member', 'Member'), ('walkin', 'Walkin'), ('ref', 'Reference')], string="Type",required=True)
 	book_status = fields.Selection(
 		[('book', 'Booked'), ('avial', 'Availed'), ('cancel', 'Cancelled')], string="Booking Status")
 	date = fields.Date(string='Date',default=fields.Date.context_today)
@@ -1030,6 +1038,16 @@ class RegAppoint(models.Model):
 		self.net_total = value
 
 
+	@api.onchange('mem_name','walkin_name','ref_mem')
+	def get_mem_context(self):
+		if self.mem_name:
+			self.context_mem = self.mem_name
+		if self.walkin_name:
+			self.context_mem = self.walkin_name
+		if self.ref_mem:
+			self.context_mem = self.ref_mem
+
+
 
 	@api.onchange('discount')
 	def get_discount(self):
@@ -1061,6 +1079,22 @@ class RegAppoint(models.Model):
 	@api.multi
 	def cancel(self):
 		self.stages = 'cancel'
+
+	@api.one
+	def get_avail(self):
+		if self.invoice_link:
+			if self.invoice_link.state == "paid" and self.stages != 'avail':
+				self.status = True
+
+	@api.one
+	def get_imd(self):
+		if self.invoice_link.state != "paid" and self.stages == 'booked':
+			self.check = True
+
+
+
+
+
 
 	@api.multi
 	def booked(self):
@@ -1136,20 +1170,20 @@ class RegAppoint(models.Model):
 			self.create_invoice()
 			self.invoice_link.action_invoice_open()
 
-		if not self.invoice_link.state=='paid': 
-			return {
-			'name': 'My Window',
-			'domain': [],
-			'res_model': 'customer.payment.bcube',
-			'type'	   : 'ir.actions.act_window',
-			'view_mode': 'form',
-			'view_type': 'form',
-			'context': {},
-			'context': {'default_partner_id':self.mem_name.id,'default_membership_no':self.member_no.id,'default_amount':self.net_total,'default_date':self.date,'default_receipts':True},
-			'target': 'new',
-		  }
-		if self.invoice_link.state=='paid':
-			self.avail()
+		if self.invoice_link:
+			if self.invoice_link.state != 'paid': 
+				return {
+				'name': 'My Window',
+				'domain': [],
+				'res_model': 'customer.payment.bcube',
+				'type'	   : 'ir.actions.act_window',
+				'view_mode': 'form',
+				'view_type': 'form',
+				'context': {},
+				'context': {'default_partner_id':self.context_mem.id,'default_membership_no':self.member_no.id,'default_amount':self.net_total,'default_date':self.date,'default_receipts':True},
+				'target': 'new',
+			  }
+
 
 
 
@@ -1205,6 +1239,19 @@ class RegAppoint(models.Model):
 			if self.types == 'walkin':
 				create_invoice_entry = invoice_entries.create({
 							'partner_id': self.walkin_name.id,
+							'customer_name': self.name,
+							'branch': self.branch.id,
+							'date_invoice': self.date,
+							'check': True,
+							'type_of_invoice': 'massage',
+							'journal_id': sale_journal_list[0].id,
+							'type': 'out_invoice',
+
+						})
+
+			if self.types == 'ref':
+				create_invoice_entry = invoice_entries.create({
+							'partner_id': self.ref_mem.id,
 							'customer_name': self.name,
 							'branch': self.branch.id,
 							'date_invoice': self.date,
@@ -1394,6 +1441,7 @@ class RegAttend(models.Model):
 	attendance_date = fields.Char('Attendance Date')
 	member_photo = fields.Binary()
 	branch = fields.Many2one('branch',string='Branch',readonly=True)
+	premium = fields.Boolean(string="Premium",readonly=True)
 
 	@api.onchange('employee_id')
 	def get_customer(self):
@@ -2139,9 +2187,9 @@ class PartnerExtend(models.Model):
 	_inherit = 'res.partner'
 
 	walkin = fields.Boolean(string='Walkin Customer')
-	premium = fields.Boolean(string='Premium',readonly=True)
-	branch = fields.Many2one('branch',readonly=True)
-	membership_no = fields.Char(readonly=True)
+	premium = fields.Boolean(string='Premium')
+	branch = fields.Many2one('branch')
+	membership_no = fields.Char()
 
 	@api.multi
 	def duplicate_customer(self):
@@ -2247,6 +2295,7 @@ class RegSale(models.Model):
 	show_walk = fields.Boolean(string="walk")
 	branch = fields.Many2one('branch', string='Branch',readonly=True)
 	invoice_link = fields.Many2one('account.invoice',readonly=True)
+	journal_id = fields.Many2one('account.journal',string="Journal Id")
 	waking_ref_mem = fields.Char(string='Walking Ref Member')
 	sale_id = fields.One2many('struct.sale.tree','sale_tree')
 	stages = fields.Selection([
@@ -2325,6 +2374,7 @@ class RegSale(models.Model):
 		""" when click the togle button open the receipt model """
 		if not self.invoice_link:
 			self._sent_for_clearance()
+			self.get_journal_enteries()
 
 		if not self.invoice_link.state=='paid': 
 			return {
@@ -2373,6 +2423,46 @@ class RegSale(models.Model):
 			self.invoice_link.action_invoice_open()
 
 
+	def get_journal_enteries(self):
+		if self.journal_id:
+			journal_entries = self.env['account.move']
+			journal_entries_lines = self.env['account.move.line']
+			for z in self.sale_id:
+				value = 0
+				create_entery = journal_entries.create({
+					'journal_id': self.journal_id.id,
+					'date':self.date,
+					'ref' : self.id,						
+					'branch' : self.branch.id,						
+					})
+
+				l_date = []
+				data = self.env['struct.purchase.tree'].search([('product','=',z.product.id)])
+				for line in data:
+					l_date.append(line)
+					datelist = sorted(l_date, key=lambda x: line.purchase_tree.date)
+				new = datelist.pop().purchase_tree.date
+				for i in l_date:
+					if i.purchase_tree.date == new:
+						value = i.price * z.qty
+
+				creat_debit = self.create_entry_lines(z.product.categ_id.property_account_income_categ_id.id,value,0,z.sale_tree.branch.id,create_entery.id)
+				creat_credit = self.create_entry_lines(z.product.property_account_expense_id.id,0,value,z.sale_tree.branch.id,create_entery.id)
+
+				z.move_link = create_entery.id
+				
+
+	def create_entry_lines(self,account,debit,credit,branch,entry_id):
+		self.env['account.move.line'].create({
+				'account_id':account,
+				'name':"Sale Entery",
+				'debit':debit,
+				'credit':credit,
+				'branch':branch,
+				'move_id':entry_id,
+				})
+
+
 			
 
 class RegSaleTree(models.Model):
@@ -2384,6 +2474,7 @@ class RegSaleTree(models.Model):
 	price = fields.Float(string='Price')
 	subtotal = fields.Float(string='Sub Total',readonly=True)
 	sale_tree = fields.Many2one('struct.sale')
+	move_link = fields.Many2one('account.move')
 
 	@api.onchange('qty','price')
 	def grt_subtotal(self):
@@ -2584,11 +2675,32 @@ class Confirm(models.Model):
 	_name = 'confirm'
 
 	reg_link = fields.Many2one('reg.form')
+	date = fields.Date('Date',required=True)
 
 
 	@api.multi
 	def confirm(self):
+		if not self.reg_link.nonactive_id:
+			nonactiverec = self.env['nonactive.track']
+			create_rec = nonactiverec.create({
+				'name': "NonActive Track"
+				})
+			a = create_rec.nonactive_link.create({
+					'date': self.date,
+					'nonactive_tree': create_rec.id,
+				})
+			self.reg_link.nonactive_id = create_rec.id
+
+		else:
+			rec = []
+			rec.append({
+				'date':self.date,
+				})
+
+			self.reg_link.nonactive_id.nonactive_link = rec
+
 		self.reg_link.stages = "non_member"
+
 
 class InvoiceWizard(models.Model):
 	_name = 'invoice.wizard'
@@ -2623,6 +2735,47 @@ class InvoiceWizard(models.Model):
 
 					x.invoice_link = create_invoice_entry.id
 					x.invoice_link.action_invoice_open()
+
+			if x.journal_id:
+				journal_entries = self.env['account.move']
+				journal_entries_lines = self.env['account.move.line']
+				for z in x.sale_id:
+					value = 0
+					create_entery = journal_entries.create({
+						'journal_id': x.journal_id.id,
+						'date':x.date,
+						'ref' : x.id,						
+						'branch' : x.branch.id,						
+						})
+
+					l_date = []
+					data = self.env['struct.purchase.tree'].search([('product','=',z.product.id)])
+					for line in data:
+						l_date.append(line)
+						datelist = sorted(l_date, key=lambda x: line.purchase_tree.date)
+					new = datelist.pop().purchase_tree.date
+					for i in l_date:
+						if i.purchase_tree.date == new:
+							value = i.price * z.qty
+
+					creat_debit = self.create_entry_lines(z.product.categ_id.property_account_income_categ_id.id,value,0,z.sale_tree.branch.id,create_entery.id)
+					creat_credit = self.create_entry_lines(z.product.property_account_expense_id.id,0,value,z.sale_tree.branch.id,create_entery.id)
+
+					z.move_link = create_entery.id
+
+
+
+
+
+	def create_entry_lines(self,account,debit,credit,branch,entry_id):
+		self.env['account.move.line'].create({
+				'account_id':account,
+				'name':"Sale Entery",
+				'debit':debit,
+				'credit':credit,
+				'branch':branch,
+				'move_id':entry_id,
+				})
 
 
 
@@ -2729,3 +2882,20 @@ class InvoiceWizard(models.Model):
 		end_masg="www.structure.com.pk  || www.facebook.com/structureLHE "
 		url = "http://www.sms4connect.com/api/sendsms.php/sendsms/url?id=gulberg&pass=lahore123&msg="+mid_masg+end_masg+"&to="+to+"&lang=English&mask=STRUCTURE&type=xml";
 		requests.post(url)
+
+
+
+class NonActiveTrack(models.Model):
+	_name = 'nonactive.track'
+
+	name = fields.Char(default="NonActive Link")
+	nonactive_link = fields.One2many('nonactive.track.tree','nonactive_tree')
+
+
+
+class NonActiveTrackTree(models.Model):
+	_name = 'nonactive.track.tree'
+
+
+	date = fields.Date()
+	nonactive_tree = fields.Many2one('nonactive.track')

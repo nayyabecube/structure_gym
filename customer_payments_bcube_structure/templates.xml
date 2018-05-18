@@ -40,7 +40,7 @@
                         <field name="journal_entry_id"  readonly = "True"/>  
                         <field name="branch" /> 
                         <field name="credit" />
-                        <field name="credit_acc" attrs="{'readonly':[('state','=','post')],'invisible':[('credit','=',False)],'required':[('credit','=',True)]}" domain="[('user_type_id.name', '=', 'Bank and Cash')]"/>
+                        <field name="credit_acc" attrs="{'readonly':[('state','=','post')],'invisible':[('credit','=',False)],'required':[('credit','=',True)]}" domain="[('user_type_id.name','=', ('Bank and Cash','Expenses'))]"/>
                         <field name="receipts" invisible="1"/> 
                         <field name="invoice_link" invisible="1"/> 
                         <field name="purchase_id" invisible="1"/> 

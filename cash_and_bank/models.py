@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from openerp import models, fields, api
+from odoo.exceptions import Warning, ValidationError
 
 
 class account_extend(models.Model):
@@ -85,8 +86,18 @@ class LockerEcube(models.Model):
 	_name = 'locker.ecube'
 	_rec_name = 'date'
 
+
+	seq_id = fields.Char(string="Id",readonly=True)
 	date = fields.Date(string="Date",required=True)
 	branch = fields.Many2one('branch',string="Branch",readonly=True)
+	credit_act_branch = fields.Many2one('account.account',string="Branch Credit Account")
+	debit_act_branch = fields.Many2one('account.account',string="Branch Debit Account")
+	credit_act_head = fields.Many2one('account.account',string="Head Credit Account")
+	debit_act_head = fields.Many2one('account.account',string="Head Debit Account")
+	branch_journal = fields.Many2one('account.journal',string="Branch Journal")
+	head_journal = fields.Many2one('account.journal',string="Head Journal")
+	branch_jid = fields.Many2one('account.move',string="branch id")
+	head_jid = fields.Many2one('account.move',string="Head id")
 	amount = fields.Float(string="Amount")
 	stages = fields.Selection([
 		('draft', 'Draft'),
@@ -96,11 +107,49 @@ class LockerEcube(models.Model):
 	@api.multi
 	def get_validate(self):
 		self.stages = 'validate'
+		journal_entries = self.env['account.move']
+		journal_entries_lines = self.env['account.move.line']
+		if not self.branch_jid:
+			create_branch_entery = journal_entries.create({
+				'journal_id': self.branch_journal.id,
+				'date':self.date,
+				'ref' : self.seq_id,						
+				'branch' : self.branch_journal.branch.id,						
+				})
+
+			creat_debit = self.create_entry_lines(self.debit_act_branch.id,self.amount,0,self.branch_journal.branch.id,create_branch_entery.id)
+			creat_credit = self.create_entry_lines(self.credit_act_branch.id,0,self.amount,self.branch_journal.branch.id,create_branch_entery.id)
+			self.branch_jid = create_branch_entery.id
+		else:
+			creat_debit = self.create_entry_lines(self.debit_act_branch.id,self.amount,0,self.branch_journal.branch.id,self.branch_jid.id)
+			creat_credit = self.create_entry_lines(self.credit_act_branch.id,0,self.amount,self.branch_journal.branch.id,self.branch_jid.id)
+
+
+		if not self.head_jid:
+			create_head_entry = journal_entries.create({
+				'journal_id': self.head_journal.id,
+				'date':self.date,
+				'ref' : self.seq_id,						
+				'branch' : self.head_journal.branch.id,						
+				})
+
+			creat_debit = self.create_entry_lines(self.debit_act_head.id,self.amount,0,self.head_journal.branch.id,create_head_entry.id)
+			creat_credit = self.create_entry_lines(self.credit_act_head.id,0,self.amount,self.head_journal.branch.id,create_head_entry.id)
+			self.head_jid = create_head_entry.id
+		else:
+			creat_debit = self.create_entry_lines(self.debit_act_head.id,self.amount,0,self.head_journal.branch.id,self.head_jid.id)
+			creat_credit = self.create_entry_lines(self.credit_act_head.id,0,self.amount,self.head_journal.branch.id,self.head_jid.id)
+
 
 
 	@api.multi
 	def get_draft(self):
 		self.stages = 'draft'
+		if self.branch_jid:
+			self.branch_jid.line_ids.unlink()
+		if self.head_jid:
+			self.head_jid.line_ids.unlink()
+
 
 
 	@api.onchange('date')
@@ -109,25 +158,158 @@ class LockerEcube(models.Model):
 		self.branch = users.branch.id
 
 
+	@api.model
+	def create(self, vals):
+		vals['seq_id'] = self.env['ir.sequence'].next_by_code('locker.seq')
+		new_record = super(LockerEcube, self).create(vals)
+
+		return new_record
+
+
+	@api.multi
+	def unlink(self):
+		for x in self:
+			if x.stages == "validate":
+				raise  ValidationError('Cannot Delete Record')
+	
+		return super(LockerEcube,self).unlink()
+
+
+	def create_entry_lines(self,account,debit,credit,branch,entry_id):
+		self.env['account.move.line'].create({
+				'account_id':account,
+				'name':self.seq_id,
+				'debit':debit,
+				'credit':credit,
+				'branch':branch,
+				'move_id':entry_id,
+				})
+
+
 
 class CashIssueEcube(models.Model):
 	_name = 'cashissue.ecube'
 	_rec_name = 'date'
 
+	seq_id = fields.Char(string="Id",readonly=True)
 	date = fields.Date(string="Date",required=True)
 	amount = fields.Float(string="Amount")
-	account_id = fields.Many2one('account.account',string="Account")
+	branch = fields.Many2one('branch',string="Branch",readonly=True)
+	credit_act_branch = fields.Many2one('account.account',string="Branch Credit Account")
+	debit_act_branch = fields.Many2one('account.account',string="Branch Debit Account")
+	credit_act_head = fields.Many2one('account.account',string="Head Credit Account")
+	debit_act_head = fields.Many2one('account.account',string="Head Debit Account")
+	branch_journal = fields.Many2one('account.journal',string="Branch Journal")
+	head_journal = fields.Many2one('account.journal',string="Head Journal")
+	branch_jid = fields.Many2one('account.move',string="branch id")
+	head_jid = fields.Many2one('account.move',string="Head id")
 	stages = fields.Selection([
 		('draft', 'Draft'),
 		('validate', 'Validate'),
 		], default='draft')
 
 
+
 	@api.multi
 	def get_validate(self):
 		self.stages = 'validate'
+		journal_entries = self.env['account.move']
+		journal_entries_lines = self.env['account.move.line']
+		if not self.branch_jid:
+			create_branch_entery = journal_entries.create({
+				'journal_id': self.branch_journal.id,
+				'date':self.date,
+				'ref' : self.seq_id,						
+				'branch' : self.branch_journal.branch.id,						
+				})
+
+			creat_debit = self.create_entry_lines(self.debit_act_branch.id,self.amount,0,self.branch_journal.branch.id,create_branch_entery.id)
+			creat_credit = self.create_entry_lines(self.credit_act_branch.id,0,self.amount,self.branch_journal.branch.id,create_branch_entery.id)
+			self.branch_jid = create_branch_entery.id
+		else:
+			creat_debit = self.create_entry_lines(self.debit_act_branch.id,self.amount,0,self.branch_journal.branch.id,self.branch_jid.id)
+			creat_credit = self.create_entry_lines(self.credit_act_branch.id,0,self.amount,self.branch_journal.branch.id,self.branch_jid.id)
+
+
+		if not self.head_jid:
+			create_head_entry = journal_entries.create({
+				'journal_id': self.head_journal.id,
+				'date':self.date,
+				'ref' : self.seq_id,						
+				'branch' : self.head_journal.branch.id,						
+				})
+
+			creat_debit = self.create_entry_lines(self.debit_act_head.id,self.amount,0,self.head_journal.branch.id,create_head_entry.id)
+			creat_credit = self.create_entry_lines(self.credit_act_head.id,0,self.amount,self.head_journal.branch.id,create_head_entry.id)
+			self.head_jid = create_head_entry.id
+		else:
+			creat_debit = self.create_entry_lines(self.debit_act_head.id,self.amount,0,self.head_journal.branch.id,self.head_jid.id)
+			creat_credit = self.create_entry_lines(self.credit_act_head.id,0,self.amount,self.head_journal.branch.id,self.head_jid.id)
+
 
 
 	@api.multi
 	def get_draft(self):
 		self.stages = 'draft'
+		if self.branch_jid:
+			self.branch_jid.line_ids.unlink()
+		if self.head_jid:
+			self.head_jid.line_ids.unlink()
+
+
+	@api.onchange('date')
+	def set_branch(self):
+		users = self.env['res.users'].search([('id','=',self._uid)])
+		self.branch = users.branch.id
+
+
+	@api.model
+	def create(self, vals):
+		vals['seq_id'] = self.env['ir.sequence'].next_by_code('issue.seq')
+		new_record = super(CashIssueEcube, self).create(vals)
+
+		return new_record
+
+
+	@api.multi
+	def unlink(self):
+		for x in self:
+			if x.stages == "validate":
+				raise  ValidationError('Cannot Delete Record')
+	
+		return super(CashIssueEcube,self).unlink()
+
+
+	def create_entry_lines(self,account,debit,credit,branch,entry_id):
+		self.env['account.move.line'].create({
+				'account_id':account,
+				'name':self.seq_id,
+				'debit':debit,
+				'credit':credit,
+				'branch':branch,
+				'move_id':entry_id,
+				})
+
+
+
+
+
+class account_move_extend(models.Model):
+	_inherit = 'account.move'
+
+	@api.multi
+	def assert_balanced(self):
+		if not self.ids:
+			return True
+		prec = self.env['decimal.precision'].precision_get('Account')
+
+		self._cr.execute("""\
+			SELECT      move_id
+			FROM        account_move_line
+			WHERE       move_id in %s
+			GROUP BY    move_id
+			HAVING      abs(sum(debit) - sum(credit)) > %s
+			""", (tuple(self.ids), 10 ** (-max(5, prec))))
+		# if len(self._cr.fetchall()) != 0:
+		#     raise UserError(_("Cannot create unbalanced journal entry."))
+		return True

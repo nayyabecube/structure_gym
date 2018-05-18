@@ -45,11 +45,13 @@ class SampleDevelopmentReport(models.AbstractModel):
         branch = record_wizard.branch
 
         journal_cust = []
-        rec = self.env['account.move.line'].search([('date','>',record_wizard.date),('move_id.branch','=',record_wizard.branch.id)])
+        rec = self.env['account.move.line'].search([('move_id.date','<=',record_wizard.date),('move_id.branch','=',record_wizard.branch.id)])
         for x in rec:
             if x.partner_id:
                 if x.partner_id.id not in journal_cust:
                     journal_cust.append(x.partner_id.id)
+
+
 
         cust = []
         records = self.env['res.partner'].search([])

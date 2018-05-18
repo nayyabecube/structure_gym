@@ -35,7 +35,7 @@ class RegionWiseDetail(models.Model):
 	@api.onchange('types')
 	def get_type(self):
 		if self.types:
-			if self.types == 'discontinue' or self.types == 'new':
+			if self.types == 'discontinue' or self.types == 'new' or self.types == 'daily' or self.types == 'temp':
 				self.tick = True
 			else:
 				self.tick = False
