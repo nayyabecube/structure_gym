@@ -21,7 +21,10 @@
 
                         <group name="group_left">
 
-                            <field name="member" widget="many2many_tags"/>
+                            <field name="typed"/>
+                            <field name="member" widget="many2many_tags" attrs="{'invisible':[('typed', '!=', 'specific')]}" domain="[('stages','=','member')]"/>
+                            <field name="branch" attrs="{'invisible':[('typed', '!=', 'all')]}"/>
+                            <field name="present" />
 
                         </group>
 

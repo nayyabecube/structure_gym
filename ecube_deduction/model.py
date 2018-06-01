@@ -23,4 +23,3 @@ class EcubePayrollTypeClass(models.Model):
 
     name = fields.Char(string="Name")
 
-

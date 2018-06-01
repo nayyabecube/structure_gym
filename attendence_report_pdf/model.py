@@ -45,10 +45,10 @@ class EmployeeWiseAttendence(models.AbstractModel):
         member = record_wizard.member
         to = record_wizard.to
         form = record_wizard.form
+        typed = record_wizard.typed
+        branch = record_wizard.branch
+        present = record_wizard.present
 
-        members = []
-        for x in member:
-            members.append(x)
 
         d1 = datetime.datetime.strptime(record_wizard.form, "%Y-%m-%d")
         d2 = datetime.datetime.strptime(record_wizard.to, "%Y-%m-%d")
@@ -60,13 +60,43 @@ class EmployeeWiseAttendence(models.AbstractModel):
 
         size = len(dates)
 
+
+        if typed == 'specific' and present == False:
+            members = []
+            for x in member:
+                members.append(x)
+        if typed == 'all' and present == False:
+            members = self.env['reg.form'].search([('branch.id','=',branch.id),('stages','=','member')])
+
+
+        if typed == 'specific' and present == True:
+            select = []
+            for x in member:
+                select.append(x)
+            members = []
+            for z in select:
+                record = self.env['struct.attend'].search([('date','>=',record_wizard.form),('date','<=',record_wizard.to),('employee_id.id','=',z.id)])
+                for i in record:
+                    if i.employee_id not in members:
+                        members.append(i.employee_id)
+
+        if typed == 'all' and present == True:
+            select = self.env['reg.form'].search([('branch.id','=',branch.id),('stages','=','member')])
+            members = []
+            for z in select:
+                record = self.env['struct.attend'].search([('date','>=',record_wizard.form),('date','<=',record_wizard.to),('employee_id.id','=',z.id)])
+                for i in record:
+                    if i.employee_id not in members:
+                        members.append(i.employee_id)
+
+
         def getattend(date,member):
             attendence = self.env['struct.attend'].search([('date','=',date),('employee_id.id','=',member.id)])
             
             if attendence:
                 for x in attendence:
                     if x.time:
-                        return x.time
+                        return (x.time[0:5])
                     else: 
                         return "-"
             else: 

@@ -77,6 +77,8 @@ class SampleDevelopmentReport(models.AbstractModel):
             'doc_model': 'res.partner',
             'cust': cust,
             'get_bal': get_bal,
+            'date': date,
+            'branch': branch.name,
     
             }
 

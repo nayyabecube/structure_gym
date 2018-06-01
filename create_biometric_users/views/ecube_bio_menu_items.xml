@@ -24,6 +24,22 @@
                 sequence="1002"
                 /> -->
 
+
+
+
+
+    <record id="ecube_machine_info_menu_action" model="ir.actions.act_window">
+            <field name="name">Bio Machine Info</field>
+            <field name="res_model">machine.info</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    You have'nt created any record yet.
+                </p>
+            </field>
+        </record>
+
         <menuitem
                 id="ecube_machine_info_menu"
                 name="Machines Info"

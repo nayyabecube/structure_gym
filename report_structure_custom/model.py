@@ -11,7 +11,7 @@ class ecube_report_structure(models.Model):
         ('profit_loss', 'Profit and Loss'),
         ('cash', 'Cash Flow'),
         ], string='Description')
-    report_link = fields.One2many('ecube.report.structure.details','report_tree')
+    report_link = fields.One2many('ecube.report.structure.details','report_tree', copy=True)
     division_link = fields.One2many('ecube.report.structure.divisions','divisions_tree')
     division = fields.Many2many('branch',string='Division')
 

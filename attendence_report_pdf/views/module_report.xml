@@ -62,6 +62,12 @@
                             table tr:last-child td {
                                 border-bottom: none;
                             }
+                            .controlled {
+                                max-width: 28px;
+                                width: 28px;
+                                padding: 0px 1px;
+                                text-align: center;
+                            }
                         </style>
 
                         <t t-if="size &lt; 16">
@@ -106,15 +112,15 @@
                                 <tr>
                                     <th>Sr #</th>
                                     <th>Name</th>
-                                    <th>Membership no</th>
+                                    <th class="memberd">Membership no</th>
                                     <th>Package</th>
                                     <th>Trainer Name</th>
                                     <t t-foreach="dates" t-as="date">
-                                        <th>
+                                        <th class="controlled">
                                             <span t-esc="time.strftime('%d',time.strptime(date,'%Y-%m-%d'))"></span>
                                         </th>
                                     </t>
-                                    <th>Total Attandence</th>
+                                    <th class="total">Total Attandence</th>
                                 </tr>
 
                                 <t t-set="sr_no" t-value="1" />
@@ -126,11 +132,11 @@
                                             <t t-set="sr_no" t-value="sr_no + 1" />
                                         </td>
                                         <td><span t-esc="member.name"></span></td>
-                                        <td><span t-esc="member.memship_no"></span></td>
+                                        <td class="memberd"><span t-esc="member.memship_no"></span></td>
                                         <td><span t-esc="member.package.name"></span></td>
                                         <td><span t-esc="member.current_trainer.name"></span></td>
                                         <t t-foreach="dates" t-as="date">
-                                            <td>
+                                            <td class="controlled">
                                                 <t t-set="time" t-value="getattend(date,member)" />
                                                 <span t-esc="time"></span>
                                                 <t t-if="time != '-'">
@@ -138,7 +144,7 @@
                                                 </t>
                                             </td>
                                         </t>
-                                        <td><span t-esc="attend"></span></td>
+                                        <td class="total"><span t-esc="attend"></span></td>
                                     </tr>
                                 </t>
                             </table>

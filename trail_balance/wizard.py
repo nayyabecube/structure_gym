@@ -24,7 +24,7 @@ from openerp import models, fields, api
 class TrailDetail(models.Model):
 	_name = "trail.balance"
 
-	date = fields.Date("Date",required=True) 
+	date = fields.Date("Date",required=True)
 	branch = fields.Many2many("branch",string="Branch")
 	b_types = fields.Selection([('all','All'),('specfic', 'Specfic'),('general', 'General')], string="Branch Filter", required=True)
 	

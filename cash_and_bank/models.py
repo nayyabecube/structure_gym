@@ -82,6 +82,29 @@ class account_extend(models.Model):
 		self.total_bal = self.actual_bal + self.virtual_bal
 
 
+	@api.multi
+	def get_branch(self):
+		for x in self.line_ids:
+			if x.journal_entry_ids:
+				x.journal_entry_ids.branch = self.branch.id
+
+
+class bank_extend_line(models.Model):
+	_inherit = 'account.bank.statement.line'
+
+	# branch   = fields.Many2one('branch',string="Branch")
+
+
+	@api.multi
+	def process_reconciliation(self,data,uid,id):
+		new_record = super(bank_extend_line, self).process_reconciliation(data,uid,id)
+		records = self.env['account.bank.statement'].search([('id','=',self.statement_id.id)])
+		journal_entery =  self.env['account.move'].search([], order='id desc', limit=1)
+		journal_entery.branch = records.branch.id
+		return new_record
+
+
+
 class LockerEcube(models.Model):
 	_name = 'locker.ecube'
 	_rec_name = 'date'

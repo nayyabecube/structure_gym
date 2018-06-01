@@ -123,7 +123,7 @@
       </record>
 
     <record model="ir.actions.act_window" id="reporting">
-        <field name="name">Report Stucture</field>
+        <field name="name">Report Structure</field>
         <field name="res_model">ecube.report.structure</field>
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>

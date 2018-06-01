@@ -2,6 +2,7 @@
 from openerp import models, fields, api
 from openerp.exceptions import Warning
 from openerp.exceptions import ValidationError
+import requests
 
 class CustomerPayment(models.Model): 
 	_name = 'customer.payment.bcube' 
@@ -114,6 +115,26 @@ class CustomerPayment(models.Model):
 			create_debit = self.create_entry_lines(self.account_id.id,value,0,create_journal_entry.id)
 			create_credit = self.create_entry_lines(self.partner_id.property_account_receivable_id.id,0,value,create_journal_entry.id)
 			self.reconcile_invoices()
+			if self.membership_no.mob:
+				mob=self.membership_no.mob
+				member_name = self.partner_id.name
+				payment = self.amount
+
+
+				self.payment_due_function(mob,member_name,payment)
+
+	@api.multi
+	def payment_due_function(self,mob,member_name,payment):
+		member_name="Dear " + member_name + " "
+		to = mob
+		# masg_start="Your Monthly Subscription due date is"+ invoice_date+ " "
+		payment_due=self.env['sms'].search([])
+		mid_masg=str(payment_due.payment_rec)
+		payment = str(payment)
+		end_masg="www.structure.com.pk  || www.facebook.com/structureLHE "
+		url = "http://www.sms4connect.com/api/sendsms.php/sendsms/url?id=gulberg&pass=lahore123&msg="+member_name+mid_masg+payment+" "+end_masg+"&to="+to+"&lang=English&mask=STRUCTURE&type=xml";
+		requests.post(url)
+
 
 
 	def create_entry_lines(self,account,debit,credit,entry_id):

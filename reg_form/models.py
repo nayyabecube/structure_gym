@@ -300,6 +300,8 @@ class RegForm(models.Model):
 			if self.package:
 				if self.morning == False and self.noon == False and self.evening == False and self.afternoon == False:
 					raise  ValidationError('Select Timeslot')
+		if self.nonactive_id:
+			self.nonactive_id.reg_id = self.id
 
 		return True
 
@@ -874,8 +876,18 @@ class RegAccount(models.Model):
 	def action_invoice_open(self):
 		new_record = super(RegAccount, self).action_invoice_open()
 		self.invoice_due = True
-		if self.branch:
-			self.move_id.branch = self.branch.id
+		if not self.premium:
+			if self.branch:
+				self.move_id.branch = self.branch.id
+		if self.premium:
+			users = self.env['res.users'].search([('id','=',self._uid)])
+			self.move_id.branch = users.branch.id
+			journal = []
+			journal_id = self.env['account.journal'].search([('branch','=',users.branch.id),('type','=','sale')])
+			for x in journal_id:
+				journal.append(x)
+			self.move_id.journal_id = journal[0].id
+
 
 		return new_record
 
@@ -2446,8 +2458,8 @@ class RegSale(models.Model):
 					if i.purchase_tree.date == new:
 						value = i.price * z.qty
 
-				creat_debit = self.create_entry_lines(z.product.categ_id.property_account_income_categ_id.id,value,0,z.sale_tree.branch.id,create_entery.id)
-				creat_credit = self.create_entry_lines(z.product.property_account_expense_id.id,0,value,z.sale_tree.branch.id,create_entery.id)
+				creat_debit = self.create_entry_lines(z.product.property_account_expense_id.id,value,0,z.sale_tree.branch.id,create_entery.id)
+				creat_credit = self.create_entry_lines(z.product.categ_id.property_stock_account_output_categ_id.id,0,value,z.sale_tree.branch.id,create_entery.id)
 
 				z.move_link = create_entery.id
 				
@@ -2551,7 +2563,7 @@ class RegPurchase(models.Model):
 								})
 
 							if y.product.property_account_expense_id:
-								creat_debit = self.create_entry_lines(y.product.property_account_expense_id.id,y.subtotal,0,create_entry.id)
+								creat_debit = self.create_entry_lines(y.product.categ_id.property_stock_account_output_categ_id.id,y.subtotal,0,create_entry.id)
 								creat_credit = self.create_entry_lines(self.name.property_account_payable_id.id,0,y.subtotal,create_entry.id)
 								y.journal_id = create_entry.id
 
@@ -2683,7 +2695,8 @@ class Confirm(models.Model):
 		if not self.reg_link.nonactive_id:
 			nonactiverec = self.env['nonactive.track']
 			create_rec = nonactiverec.create({
-				'name': "NonActive Track"
+				'name': "NonActive Track",
+				'reg_id': self.reg_link.id
 				})
 			a = create_rec.nonactive_link.create({
 					'date': self.date,
@@ -2700,6 +2713,8 @@ class Confirm(models.Model):
 			self.reg_link.nonactive_id.nonactive_link = rec
 
 		self.reg_link.stages = "non_member"
+
+
 
 
 class InvoiceWizard(models.Model):
@@ -2758,7 +2773,7 @@ class InvoiceWizard(models.Model):
 						if i.purchase_tree.date == new:
 							value = i.price * z.qty
 
-					creat_debit = self.create_entry_lines(z.product.categ_id.property_account_income_categ_id.id,value,0,z.sale_tree.branch.id,create_entery.id)
+					creat_debit = self.create_entry_lines(z.product.categ_id.property_stock_account_output_categ_id.id,value,0,z.sale_tree.branch.id,create_entery.id)
 					creat_credit = self.create_entry_lines(z.product.property_account_expense_id.id,0,value,z.sale_tree.branch.id,create_entery.id)
 
 					z.move_link = create_entery.id
@@ -2785,13 +2800,14 @@ class move_extend(models.Model):
 	_inherit = 'account.move'
 
 	branch   = fields.Many2one('branch',string="Branch")
-	# new = fields.Boolean()
+	new_check = fields.Boolean()
+	
 
-
+	@api.multi
 	def branch_get_tree(self):
 		records= self.env['account.move'].search([])
 		for x in records:
-			x.new = True
+			x.new_check = True
 
 
 
@@ -2816,6 +2832,9 @@ class move_extend(models.Model):
 	def getbranch(self):
 		for x in self.line_ids:
 			x.branch = self.branch.id
+			if x.partner_id:
+				x.membership_no = x.partner_id.membership_no
+
 
 
 	@api.model
@@ -2842,6 +2861,7 @@ class account_move_extension(models.Model):
 	_inherit = 'account.move.line'
 
 	branch   = fields.Many2one('branch',string="Branch")
+	membership_no   = fields.Char(string="Membership No")
 
 
 class account_extend(models.Model):
@@ -2889,7 +2909,9 @@ class NonActiveTrack(models.Model):
 	_name = 'nonactive.track'
 
 	name = fields.Char(default="NonActive Link")
+	reg_id = fields.Many2one('reg.form')
 	nonactive_link = fields.One2many('nonactive.track.tree','nonactive_tree')
+
 
 
 

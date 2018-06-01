@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <report
+            id="report_for_rejoin" 
+            model="struct.rejoining"
+            name="rejoining_report.customer_report"
+            file="rejoining_report.customer_report"
+            report_type="qweb-html"
+            string="Rejoining Report"
+            menu="False"/>
+            
+
+         <record id="rejoin_wizard_form_view" model="ir.ui.view">
+            <field name="name">rejoin_wizard_form_view</field>
+            <field name="model">re.join</field>
+            <field name="arch" type="xml">
+                <form string="Report">
+                    <group name="group_top">
+                        <group name="group_left"> 
+                            
+                            <field name="date_from"/>
+                            <field name="branch" options="{'no_create':True,'no_edit':True}"/>
+
+                        </group>
+
+                        <group name="group_right">
+                            <field name="date_to"/>
+
+                        </group>
+                        
+                    </group>
+                    <footer>
+                        <button name="%(report_for_rejoin)d" type="action" string="Print" class="oe_highlight"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="rejoin_reports_wizard" model="ir.actions.act_window">
+            <field name="name">Rejoining Report</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">re.join</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="rejoin_wizard_form_view"/>
+            <field name="target">new</field> 
+        </record>
+
+
+        <menuitem name="Rejoining Report" id="rejoin_wise_menu" parent="reg_form.reg_form_reporting" action="rejoin_reports_wizard"/>       
+
+    </data>
+</openerp>
+
+

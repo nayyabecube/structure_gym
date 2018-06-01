@@ -7,8 +7,7 @@
             name="trainer_report.customer_report"
             file="trainer_report.customer_report"
             report_type="qweb-html"
-            string="Trainer Report"
-            menu="False"/>
+            string=" "/>
             
 
          <record id="trainer_report_wizard_form_view" model="ir.ui.view">

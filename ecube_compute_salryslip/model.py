@@ -26,6 +26,7 @@ class EcubeEmployeeComputedSalary(models.Model):
 		# result=employee.EcubeAttendance_Actual_pay(payslip)
 		actual_working_days = 0.0
 		actual_month_days = 0.0
+		absent_days = 0.0
 		duration = 0.0
 		tsheet_obj = self.env['ecube.attendance'] 
 		timesheets = tsheet_obj.search([('date', '>=', payslip.date_from),('date', '<=', payslip.date_to)])
@@ -34,7 +35,8 @@ class EcubeEmployeeComputedSalary(models.Model):
 				if y.employee.id == self.id:
 					actual_working_days = duration + float(y.total_work_days)
 					actual_month_days = duration + float(y.working_days)
-		duration = (self.contract_id.wage / actual_month_days ) * actual_working_days
+		absent_days = actual_month_days - actual_working_days
+		duration = (self.contract_id.wage / actual_month_days ) * absent_days
 
 		return duration
 

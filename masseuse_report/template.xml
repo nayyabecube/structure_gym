@@ -7,8 +7,7 @@
             name="masseuse_report.customer_report"
             file="masseuse_report.customer_report"
             report_type="qweb-html"
-            string="Masseuse Report"
-            menu="False"/>
+            string=" "/>
             
 
          <record id="masseuse_report_wizard_form_view" model="ir.ui.view">

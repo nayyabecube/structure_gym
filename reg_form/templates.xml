@@ -94,7 +94,7 @@
                                         <field name="curent_date" invisible="1"/>
                                         <!-- <field name="req_date" invisible="1"/> -->
                                         <field name="new_join" invisible="1"/>
-                                        <field name="nonactive_id" readonly="1"/>
+                                        <field name="nonactive_id" domain="[('reg_id','=',id)]"/>
                                         <field name="gymclasses"/>
                                         <field name="premium"/>
                                         <field name="diet_plan"/>
@@ -462,7 +462,7 @@
                         <filter name="unpaid" string="Not Paid" domain="[('state','=','open')]"/>
                         <filter name="late" string="Overdue" domain="['&amp;', ('date_due', '&lt;', time.strftime('%%Y-%%m-%%d')), ('state', '=', 'open')]" help="Overdue invoices, maturity date passed"/>
                         <filter name="today" string="Today"  domain="[('date', '&gt;=', datetime.datetime.now().strftime('%Y-%m-%d 00:00:00')),('date', '&lt;=',datetime.datetime.now().strftime('%Y-%m-%d 23:23:59'))]" />
-                        <filter name="today_invoice" string="Today Invoice"  domain="[('date_invoice','=', ((context_today()-datetime.timedelta(days=3)).strftime('%Y-%m-%d')))]" />
+                        <filter name="today_invoice" string="Today Invoice"  domain="[('date_invoice','=', ((context_today()+datetime.timedelta(days=3)).strftime('%Y-%m-%d')))]" />
                         <separator/>
                         <field name="partner_id" operator="child_of"/>
                         <field name="user_id" string="Salesperson"/>
@@ -2421,7 +2421,7 @@
                             <button name="purchase_invoice" type="object" string="Create JE" class="oe_highlight" attrs="{'invisible':[('stages','=', 'validate')]}"/>
 
                             <button name="immediate_payment" type="object" string="Cash Pay" class="oe_highlight" />
-                            <button name="due_total" type="object" string="due_total" class="oe_highlight" />
+                            <!-- <button name="due_total" type="object" string="due_total" class="oe_highlight" /> -->
 
                         </header>
                         <sheet>
@@ -2591,19 +2591,38 @@
                 <field name="inherit_id" ref="account.view_move_form"/> 
                 <field name="arch" type="xml">
 
+                    <xpath expr="//button[@name='button_cancel']" position="after">
+                      <button name="branch_get_tree" type="object" string="Membership No" class="oe_highlight"/>
+                    </xpath>
+
                     <xpath expr="//field[@name='ref']" position="after">
                       <field name="branch" />
-                      <!-- <field name="new" invisible="1"/> -->
+                      <field name="new_check" invisible="1"/>
                     </xpath>
 
                     <xpath expr="//field[@name='line_ids']/tree/field[@name='credit']" position="after">
 
                       <field name="branch" />
+                      <field name="membership_no"/>
 
                     </xpath>
 
                 </field> 
               
+            </record>
+
+
+            <record id="journal_lines_form_extension_tree" model="ir.ui.view">
+                <field name="name">journal_lines_form_extension_tree</field>
+                <field name="model">account.move.line</field>
+                <field name="inherit_id" ref="account.view_move_line_tree"/>
+                <field name="type">tree</field>
+                <field name="arch" type="xml">
+                    <xpath expr="//field[@name='partner_id']" position="after">
+                      <field name="branch" />
+                      <field name="membership_no" />
+                    </xpath>
+                </field>
             </record>
 
 
@@ -3343,10 +3362,11 @@
             <field name="arch" type="xml">
                 <form string="NonActive" >
 
-                    <field name="name" invisible="1"/>
+                    <field name="name"/>
+                    <field name="reg_id" invisible="1"/>
 
                     <field name="nonactive_link" nolabel='1'>
-                        <tree>
+                        <tree editable="bottom">
 
                             <field name="date"/>
 

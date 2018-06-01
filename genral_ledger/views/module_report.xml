@@ -148,6 +148,8 @@
                                         <th>Balance</th>
                                     </tr>
 
+                                    <t t-set="cre_total" t-value="0"/>
+                                    <t t-set="deb_total" t-value="0"/>
                                     <t t-foreach="entries.sorted(key=lambda x: x.date)" t-as="data">
                                         <tr>
                                             <td><span t-esc="data.date"></span></td>
@@ -156,12 +158,18 @@
                                             <td><span t-esc="data.partner_id.name"></span></td>
                                             <td><span t-esc="data.move_id.name"></span></td>
                                             <td><span t-esc="data.name"></span></td>
+
                                             <td><span t-esc="'{:0,}'.format(int(float(data.debit)))"></span></td>
+                                            <t t-set="deb_total" t-value="deb_total+data.debit"/>
+
                                             <td><span t-esc="'{:0,}'.format(int(float(data.credit)))"></span></td>
+                                            <t t-set="cre_total" t-value="cre_total+data.credit"/>
+
                                             <td>
                                                 <t t-if="o.nature == 'debit'">
                                                     <t t-set="opened" t-value="opened + data.debit - data.credit" />
                                                     <span t-esc="'{:0,}'.format(int(float(opened)))"></span>
+
                                                 </t>
                                                 <t t-if="o.nature == 'credit'">
                                                     <t t-set="opened" t-value="opened - data.debit + data.credit" />
@@ -170,6 +178,21 @@
                                             </td>
                                         </tr>
                                     </t>
+
+                                        <tr>
+                                            <td colspan="6"></td>
+                                            <td>
+                                                <span t-esc="'{:0,}'.format(int(float(deb_total)))"></span>
+                                            </td>
+                                            <td>
+                                                <span t-esc="'{:0,}'.format(int(float(cre_total)))"></span>
+                                            </td>
+                                            <td>
+                                                <span t-esc="'{:0,}'.format(int(float(opened)))"></span>
+                                            </td>
+                                        </tr>
+
+
                                 </table>
 
                             </div><!--end of report wrapper-->

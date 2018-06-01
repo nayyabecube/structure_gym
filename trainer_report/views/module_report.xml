@@ -110,10 +110,24 @@
                             .footer {
                                 display: none !important;
                             }
+
+                            .image {
+                                width: 20%;
+                                margin: 0px auto;
+                            }
+
+                            .image img{
+                                width: 100%;
+                                display: block;
+                            }
                                         
                         </style>
 
                         <div class="report-container">
+
+                            <div class="image">
+                                <img src="/trainer_report/static/src/img/company.jpeg" alt="" />
+                            </div>
             
                             <div class="head">
                                 <h2>TRAINER REPORT</h2>

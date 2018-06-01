@@ -24,5 +24,11 @@ class GeneratesAttendenceReport(models.Model):
 	_name = "attend.report"
 
 	member = fields.Many2many('reg.form',string="Member")
+	branch = fields.Many2one('branch',string="Branch")
 	form = fields.Date(string="From")
 	to = fields.Date(string="to")
+	typed = fields.Selection([
+		('all','All'),
+		('specific','Specific'),
+		],string='Member(s)',default='all',required=True)
+	present = fields.Boolean()
